@@ -1,10 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { CanvasNode } from '../types/canvas';
 import { Edit3, Check, Trash2, GripHorizontal, FileText, Palette, Hash } from 'lucide-react';
+import { TRANSLATIONS, Language } from '../i18n/translations';
 
 interface MarkdownCardProps {
   node: CanvasNode;
   isSelected: boolean;
+  lang: Language;
   onSelect: (nodeId: string) => void;
   onUpdate: (updatedNode: CanvasNode) => void;
   onDelete: (nodeId: string) => void;
@@ -25,6 +27,7 @@ const COLOR_PRESETS = [
 export const MarkdownCard: React.FC<MarkdownCardProps> = ({
   node,
   isSelected,
+  lang,
   onSelect,
   onUpdate,
   onDelete,
@@ -35,6 +38,7 @@ export const MarkdownCard: React.FC<MarkdownCardProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const editAreaRef = useRef<HTMLTextAreaElement>(null);
+  const t = TRANSLATIONS[lang];
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onUpdate({ ...node, title: e.target.value });
@@ -97,7 +101,6 @@ export const MarkdownCard: React.FC<MarkdownCardProps> = ({
 
   // Render inline backticks, bold, and [[wikilinks]]
   const renderInlineElements = (text: string) => {
-    // Match [[...]] or `...` or **...**
     const tokens: React.ReactNode[] = [];
     let lastIndex = 0;
     const regex = /(\[\[.*?\]\]|`[^`]+`|\*\*[^*]+\*\*)/g;
@@ -124,7 +127,7 @@ export const MarkdownCard: React.FC<MarkdownCardProps> = ({
               e.stopPropagation();
               onNavigateToNode(targetTitle);
             }}
-            title={`Navigate to ${targetTitle}`}
+            title={lang === 'ko' ? `${targetTitle} 카드로 이동` : `Navigate to ${targetTitle}`}
             className="inline-flex items-center gap-0.5 px-1.5 py-0.5 mx-0.5 rounded bg-emerald-950/60 hover:bg-emerald-800/80 border border-emerald-500/40 text-emerald-300 text-[11px] font-mono transition-colors shadow-sm cursor-pointer"
           >
             <span className="text-emerald-400 text-[10px]">🔗</span>
@@ -178,6 +181,7 @@ export const MarkdownCard: React.FC<MarkdownCardProps> = ({
         e.stopPropagation();
         setIsEditing(true);
       }}
+      title={isEditing ? undefined : t.doubleClickHint}
       className={`group flex flex-col bg-[#16191E]/95 backdrop-blur-md rounded-xl border transition-shadow duration-150 ${
         isSelected
           ? 'border-emerald-500 ring-2 ring-emerald-500/30 shadow-2xl shadow-emerald-950/40'
@@ -222,7 +226,7 @@ export const MarkdownCard: React.FC<MarkdownCardProps> = ({
                 e.stopPropagation();
                 setShowColorPicker(!showColorPicker);
               }}
-              title="Card Color"
+              title={t.cardColor}
               className="p-1 rounded text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
             >
               <Palette className="w-3.5 h-3.5" />
@@ -253,7 +257,7 @@ export const MarkdownCard: React.FC<MarkdownCardProps> = ({
               e.stopPropagation();
               setIsEditing(!isEditing);
             }}
-            title={isEditing ? 'Done Editing' : 'Edit Markdown'}
+            title={isEditing ? t.doneEditing : t.editMarkdown}
             className={`p-1 rounded transition-colors ${
               isEditing
                 ? 'bg-emerald-600 text-white hover:bg-emerald-500'
@@ -269,7 +273,7 @@ export const MarkdownCard: React.FC<MarkdownCardProps> = ({
               e.stopPropagation();
               onDelete(node.id);
             }}
-            title="Delete Card"
+            title={t.deleteCard}
             className="p-1 rounded text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -284,7 +288,7 @@ export const MarkdownCard: React.FC<MarkdownCardProps> = ({
             ref={editAreaRef}
             value={node.contentSnippet}
             onChange={handleContentChange}
-            placeholder="Type markdown content with [[wikilinks]]..."
+            placeholder={t.typeMarkdownPlaceholder}
             className="w-full h-full bg-transparent text-gray-200 text-xs font-mono leading-relaxed outline-none resize-none border-0"
           />
         ) : (
@@ -312,7 +316,7 @@ export const MarkdownCard: React.FC<MarkdownCardProps> = ({
         {/* Resize Handle */}
         <div
           onMouseDown={(e) => onStartResize(e, node.id)}
-          title="Drag to resize"
+          title={t.dragResize}
           className="w-3.5 h-3.5 cursor-nwse-resize text-gray-500 hover:text-emerald-400 flex items-center justify-center -mr-1"
         >
           <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 fill-current opacity-70">

@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">CanvasLeaf</string>
+    <string name="open_vault">Open Local Vault</string>
+    <string name="new_card">New Card</string>
+    <string name="auto_layout">Auto-Layout</string>
+    <string name="export_png">Export PNG</string>
+    <string name="export_canvas">Export .canvas</string>
+    <string name="local_first_sub">100% Local-First Spatial Whiteboard</string>
+    <string name="search_placeholder">Search cards...</string>
+</resources>

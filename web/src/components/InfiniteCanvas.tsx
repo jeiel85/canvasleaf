@@ -3,6 +3,7 @@ import { CanvasEdge, CanvasNode, ViewportTransform } from '../types/canvas';
 import { MarkdownCard } from './MarkdownCard';
 import { BezierEdgeRenderer } from './BezierEdgeRenderer';
 import { CoordinateManager } from '../engines/CoordinateManager';
+import { Language } from '../i18n/translations';
 
 interface InfiniteCanvasProps {
   nodes: CanvasNode[];
@@ -10,6 +11,7 @@ interface InfiniteCanvasProps {
   viewport: ViewportTransform;
   selectedNodeId: string | null;
   searchQuery: string;
+  lang: Language;
   onViewportChange: (newViewport: ViewportTransform) => void;
   onSelectNode: (nodeId: string | null) => void;
   onUpdateNode: (updatedNode: CanvasNode) => void;
@@ -25,6 +27,7 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
   viewport,
   selectedNodeId,
   searchQuery,
+  lang,
   onViewportChange,
   onSelectNode,
   onUpdateNode,
@@ -286,6 +289,7 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
             key={node.id}
             node={node}
             isSelected={selectedNodeId === node.id}
+            lang={lang}
             onSelect={onSelectNode}
             onUpdate={onUpdateNode}
             onDelete={onDeleteNode}

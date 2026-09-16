@@ -41,14 +41,18 @@
 - 캔버스에서 카드를 수정하면 원본 마크다운 파일에 즉시 양방향 반영됩니다.
 - Web 데모에서도 **File System Access API (`showDirectoryPicker`)** 및 **드래그 앤 드롭**을 지원하여 실제 PC 로컬 폴더를 열 수 있습니다.
 
-### 3. ⚡ 60fps 무한 2D 캔버스 뷰포트
+### 3. 🌐 완벽한 다국어 지원 (한국어 / English i18n)
+- 상단 툴바의 언어 전환 버튼(🌐)을 통해 **한국어(기본값)**와 **English** 간 실시간 즉시 전환이 가능합니다.
+- 툴바, 팝업, 카드 안내문, 플레이스홀더, 가이드 노트까지 모두 완벽하게 현지화되어 있습니다.
+
+### 4. ⚡ 60fps 무한 2D 캔버스 뷰포트
 - 줌 인/아웃 (10% ~ 300%), 자유로운 팬(Pan), 미니맵(Minimap), 빠른 카드 검색(Ctrl+K).
 - 터치 핀치 줌 & 두 손가락 팬 제스처 완벽 지원.
 
-### 4. 📐 Auto-Layout (위상 정렬 자동 배치)
+### 5. 📐 Auto-Layout (위상 정렬 자동 배치)
 - 복잡하게 얽힌 카드들을 DAG(Directed Acyclic Graph) 위상 정렬 알고리즘을 통해 겹침 없이 좌->우 레이어로 자동 정렬합니다.
 
-### 5. 📸 Export PNG & JSON Canvas
+### 6. 📸 Export PNG & JSON Canvas
 - 작업한 화이트보드를 고해상도 Retina PNG 이미지로 즉시 내보내거나, Obsidian Canvas 호환 `.canvas` JSON 포맷으로 저장할 수 있습니다.
 
 ---

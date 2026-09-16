@@ -10,12 +10,16 @@ import {
   Maximize2,
   FileCode,
   Search,
+  Globe,
 } from 'lucide-react';
+import { TRANSLATIONS, Language } from '../i18n/translations';
 
 interface CanvasToolbarProps {
   vaultName: string;
   zoomPercent: number;
   searchQuery: string;
+  lang: Language;
+  onLanguageChange: (newLang: Language) => void;
   onSearchChange: (query: string) => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
@@ -33,6 +37,8 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   vaultName,
   zoomPercent,
   searchQuery,
+  lang,
+  onLanguageChange,
   onSearchChange,
   onZoomIn,
   onZoomOut,
@@ -45,6 +51,12 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   onOpenVaultModal,
   onResetToSample,
 }) => {
+  const t = TRANSLATIONS[lang];
+
+  const toggleLanguage = () => {
+    onLanguageChange(lang === 'ko' ? 'en' : 'ko');
+  };
+
   return (
     <>
       {/* Top Header Bar */}
@@ -61,7 +73,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
               </span>
               <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Local-First Whiteboard
+                {t.brandSub}
               </span>
             </div>
           </div>
@@ -82,39 +94,49 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search cards (Ctrl+K)..."
+            placeholder={t.searchPlaceholder}
             className="w-full bg-[#181B22] text-xs text-gray-200 pl-8 pr-3 py-1.5 rounded-lg border border-gray-800 focus:border-emerald-500 focus:outline-none transition-colors"
           />
         </div>
 
-        {/* Right: Zoom controls & Vault management */}
+        {/* Right: Language, Zoom controls & Vault management */}
         <div className="flex items-center gap-2">
+          {/* Language Switcher Toggle */}
+          <button
+            onClick={toggleLanguage}
+            title={lang === 'ko' ? 'Switch to English' : '한국어로 전환'}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#181B22] hover:bg-gray-800 border border-emerald-500/30 text-xs font-semibold text-emerald-300 transition-colors shadow-sm"
+          >
+            <Globe className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{lang === 'ko' ? '한국어 (KO)' : 'English (EN)'}</span>
+          </button>
+
           {/* Zoom controls widget */}
           <div className="flex items-center bg-[#181B22] border border-gray-800 rounded-lg p-0.5 text-xs font-mono text-gray-300">
             <button
               onClick={onZoomOut}
-              title="Zoom Out (-)"
+              title={t.zoomOut}
               className="p-1 hover:text-white hover:bg-white/10 rounded transition-colors"
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={onResetZoom}
-              title="Reset Zoom to 100%"
+              title={t.resetZoom}
               className="px-2 py-0.5 hover:text-white hover:bg-white/10 rounded text-[11px] font-semibold transition-colors min-w-[50px] text-center"
             >
               {zoomPercent}%
             </button>
             <button
               onClick={onZoomIn}
-              title="Zoom In (+)"
+              title={t.zoomIn}
               className="p-1 hover:text-white hover:bg-white/10 rounded transition-colors"
             >
               <ZoomIn className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={onFitView}
-              title="Fit View to All Cards"
+              title={t.fitView}
               className="p-1 hover:text-white hover:bg-white/10 rounded border-l border-gray-800 transition-colors ml-0.5"
             >
               <Maximize2 className="w-3.5 h-3.5" />
@@ -124,16 +146,17 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
           {/* Open Vault / Local folder */}
           <button
             onClick={onOpenVaultModal}
+            title={t.openVaultTip}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181B22] hover:bg-gray-800 border border-gray-700/80 text-xs font-medium text-gray-200 transition-colors"
           >
             <FolderOpen className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden sm:inline">Open Vault</span>
+            <span className="hidden sm:inline">{t.openVault}</span>
           </button>
 
           {/* Reset Demo */}
           <button
             onClick={onResetToSample}
-            title="Reset to Architecture Design Demo"
+            title={t.resetDemoTip}
             className="p-2 rounded-lg bg-[#181B22] hover:bg-gray-800 border border-gray-800 text-gray-400 hover:text-white transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -149,7 +172,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium text-xs shadow-lg shadow-emerald-900/30 transition-all active:scale-95"
         >
           <Plus className="w-4 h-4" />
-          <span>New Card</span>
+          <span>{t.newCard}</span>
         </button>
 
         <div className="h-6 w-px bg-gray-700/60" />
@@ -157,31 +180,31 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
         {/* Auto-Layout */}
         <button
           onClick={onAutoLayout}
-          title="Auto-organize cards into an optimal layout"
+          title={t.autoLayoutTip}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1C2027] hover:bg-gray-800 text-gray-200 hover:text-white text-xs font-medium border border-gray-700/60 transition-all active:scale-95"
         >
           <LayoutGrid className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Auto-Layout</span>
+          <span>{t.autoLayout}</span>
         </button>
 
         {/* Export PNG */}
         <button
           onClick={onExportPng}
-          title="Export whiteboard as high-res PNG image"
+          title={t.exportPngTip}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1C2027] hover:bg-gray-800 text-gray-200 hover:text-white text-xs font-medium border border-gray-700/60 transition-all active:scale-95"
         >
           <Download className="w-3.5 h-3.5 text-blue-400" />
-          <span>Export PNG</span>
+          <span>{t.exportPng}</span>
         </button>
 
         {/* Export JSON Canvas */}
         <button
           onClick={onExportJson}
-          title="Export as JSON Canvas standard format"
+          title={t.exportJsonTip}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1C2027] hover:bg-gray-800 text-gray-200 hover:text-white text-xs font-medium border border-gray-700/60 transition-all active:scale-95"
         >
           <FileCode className="w-3.5 h-3.5 text-purple-400" />
-          <span>.canvas</span>
+          <span>{t.exportJson}</span>
         </button>
       </div>
     </>

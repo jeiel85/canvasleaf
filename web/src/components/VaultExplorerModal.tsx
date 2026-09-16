@@ -1,11 +1,13 @@
 import React, { useRef } from 'react';
 import { CanvasNode } from '../types/canvas';
 import { X, Folder, Upload, HardDrive, FileText, CheckCircle2 } from 'lucide-react';
+import { TRANSLATIONS, Language } from '../i18n/translations';
 
 interface VaultExplorerModalProps {
   isOpen: boolean;
   onClose: () => void;
   nodes: CanvasNode[];
+  lang: Language;
   onSelectNode: (nodeId: string) => void;
   onImportFiles: (files: FileList | File[]) => void;
   onOpenDirectoryPicker: () => void;
@@ -15,11 +17,13 @@ export const VaultExplorerModal: React.FC<VaultExplorerModalProps> = ({
   isOpen,
   onClose,
   nodes,
+  lang,
   onSelectNode,
   onImportFiles,
   onOpenDirectoryPicker,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = TRANSLATIONS[lang];
 
   if (!isOpen) return null;
 
@@ -43,8 +47,8 @@ export const VaultExplorerModal: React.FC<VaultExplorerModalProps> = ({
               <Folder className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Local Vault Manager</h2>
-              <p className="text-[11px] text-gray-400">100% Local-First & Zero Vendor Lock-in</p>
+              <h2 className="text-sm font-bold text-white">{t.vaultModalTitle}</h2>
+              <p className="text-[11px] text-gray-400">{t.vaultModalSub}</p>
             </div>
           </div>
           <button
@@ -71,14 +75,14 @@ export const VaultExplorerModal: React.FC<VaultExplorerModalProps> = ({
               </div>
               <div>
                 <div className="text-xs font-semibold text-white group-hover:text-emerald-300 transition-colors">
-                  Open Real Local Folder (SAF / File System API)
+                  {t.openRealFolderTitle}
                 </div>
                 <div className="text-[11px] text-gray-400">
-                  Select any folder on your PC to load all .md files directly
+                  {t.openRealFolderDesc}
                 </div>
               </div>
             </div>
-            <span className="text-xs text-emerald-400 font-medium">Browse →</span>
+            <span className="text-xs text-emerald-400 font-medium">{t.browse}</span>
           </button>
 
           {/* Import Multiple Files */}
@@ -92,14 +96,14 @@ export const VaultExplorerModal: React.FC<VaultExplorerModalProps> = ({
               </div>
               <div>
                 <div className="text-xs font-semibold text-white group-hover:text-blue-300 transition-colors">
-                  Import .md Files Manually
+                  {t.importManualTitle}
                 </div>
                 <div className="text-[11px] text-gray-400">
-                  Select one or more markdown files to project onto canvas
+                  {t.importManualDesc}
                 </div>
               </div>
             </div>
-            <span className="text-xs text-blue-400 font-medium">Select →</span>
+            <span className="text-xs text-blue-400 font-medium">{t.selectFiles}</span>
           </button>
           <input
             ref={fileInputRef}
@@ -112,16 +116,16 @@ export const VaultExplorerModal: React.FC<VaultExplorerModalProps> = ({
 
           {/* Drag & Drop Hint */}
           <div className="p-3 rounded-lg border border-dashed border-gray-700 bg-black/20 text-center text-[11px] text-gray-400">
-            💡 Pro-Tip: You can also drag & drop <span className="text-emerald-400 font-mono font-medium">.md</span> files directly from your desktop into the canvas anytime!
+            {t.dragDropHint}
           </div>
         </div>
 
         {/* Current Active Cards / Files */}
         <div className="px-5 pb-2">
           <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span>Cards in Current Canvas ({nodes.length})</span>
+            <span>{t.cardsInCanvas} ({nodes.length})</span>
             <span className="text-emerald-400 text-[10px] flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" /> In Memory
+              <CheckCircle2 className="w-3 h-3" /> {t.inMemory}
             </span>
           </div>
         </div>

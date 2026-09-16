@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { CanvasNode, ViewportTransform } from './types/canvas';
-import { INITIAL_SAMPLE_NODES } from './data/sampleVault';
+import { getInitialSampleNodes } from './data/sampleVault';
 import { WikiLinkExtractor } from './engines/WikiLinkExtractor';
 import { AutoLayoutEngine } from './engines/AutoLayoutEngine';
 import { CoordinateManager } from './engines/CoordinateManager';
@@ -8,10 +8,39 @@ import { InfiniteCanvas } from './components/InfiniteCanvas';
 import { CanvasToolbar } from './components/CanvasToolbar';
 import { VaultExplorerModal } from './components/VaultExplorerModal';
 import { Minimap } from './components/Minimap';
+import { Language, TRANSLATIONS } from './i18n/translations';
 
 export function App() {
+  // Language State (Defaults to Korean, persisted in localStorage)
+  const [lang, setLang] = useState<Language>(() => {
+    const saved = localStorage.getItem('canvasleaf_lang');
+    return saved === 'en' ? 'en' : 'ko';
+  });
+
+  const handleLanguageChange = useCallback((newLang: Language) => {
+    setLang(newLang);
+    localStorage.setItem('canvasleaf_lang', newLang);
+
+    // Update guide card if present
+    setNodes((prev) =>
+      prev.map((node) => {
+        if (node.id === 'canvasleaf-guide') {
+          const t = TRANSLATIONS[newLang];
+          return {
+            ...node,
+            title: t.guideTitle,
+            contentSnippet: t.guideContent,
+            filePath: newLang === 'ko' ? 'CanvasLeaf_가이드.md' : 'CanvasLeaf_Guide.md',
+            tags: newLang === 'ko' ? ['가이드', 'PKM', '로컬우선'] : ['Guide', 'PKM', 'Local-First'],
+          };
+        }
+        return node;
+      })
+    );
+  }, []);
+
   // Nodes state
-  const [nodes, setNodes] = useState<CanvasNode[]>(INITIAL_SAMPLE_NODES);
+  const [nodes, setNodes] = useState<CanvasNode[]>(() => getInitialSampleNodes(lang));
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [vaultName, setVaultName] = useState<string>('Architecture_Design.canvas');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -42,52 +71,67 @@ export function App() {
 
   // Add a new card
   const handleAddNewCard = useCallback(() => {
-    // Place new card near current screen center
     const centerCanvasX = Math.round((-viewport.x + window.innerWidth / 2) / viewport.scale - 160);
     const centerCanvasY = Math.round((-viewport.y + window.innerHeight / 2) / viewport.scale - 120);
 
     const newId = `note-${Date.now()}`;
+    const prefix = lang === 'ko' ? '새메모' : 'NewNote';
+    const fileName = `${prefix}_${nodes.length + 1}.md`;
+    const defaultContent =
+      lang === 'ko'
+        ? `# ${prefix} ${nodes.length + 1}\n\n여기에 마크다운을 입력하세요.\n[[SessionDB]] 또는 다른 카드와 자동 연결할 수 있습니다!`
+        : `# ${prefix} ${nodes.length + 1}\n\nType markdown here.\nConnect with other cards using [[SessionDB]]!`;
+
     const newNode: CanvasNode = {
       id: newId,
-      filePath: `NewNote_${nodes.length + 1}.md`,
-      title: `NewNote_${nodes.length + 1}.md`,
-      contentSnippet: `# NewNote_${nodes.length + 1}\n\nType markdown here. Connect to other cards with [[TargetNote]]!`,
+      filePath: fileName,
+      title: fileName,
+      contentSnippet: defaultContent,
       posX: centerCanvasX + (Math.random() * 60 - 30),
       posY: centerCanvasY + (Math.random() * 60 - 30),
       width: 320,
       height: 220,
       colorHex: '#3B82F6',
-      tags: ['draft'],
+      tags: lang === 'ko' ? ['초안'] : ['draft'],
     };
 
     setNodes((prev) => [...prev, newNode]);
     setSelectedNodeId(newId);
-  }, [viewport, nodes.length]);
+  }, [viewport, nodes.length, lang]);
 
   // Add card at exact canvas position (e.g. double click)
-  const handleAddCardAtPosition = useCallback((canvasX: number, canvasY: number) => {
-    const newId = `note-${Date.now()}`;
-    const newNode: CanvasNode = {
-      id: newId,
-      filePath: `Idea_${nodes.length + 1}.md`,
-      title: `Idea_${nodes.length + 1}.md`,
-      contentSnippet: `# Idea ${nodes.length + 1}\n\nDouble click to edit.\n[[SessionDB]] or [[UserAuth]]`,
-      posX: Math.round(canvasX - 160),
-      posY: Math.round(canvasY - 110),
-      width: 320,
-      height: 220,
-      colorHex: '#10B981',
-      tags: ['idea'],
-    };
-    setNodes((prev) => [...prev, newNode]);
-    setSelectedNodeId(newId);
-  }, [nodes.length]);
+  const handleAddCardAtPosition = useCallback(
+    (canvasX: number, canvasY: number) => {
+      const newId = `note-${Date.now()}`;
+      const prefix = lang === 'ko' ? '아이디어' : 'Idea';
+      const fileName = `${prefix}_${nodes.length + 1}.md`;
+      const defaultContent =
+        lang === 'ko'
+          ? `# ${prefix} ${nodes.length + 1}\n\n더블 클릭하여 편집하세요.\n[[SessionDB]] 또는 [[UserAuth]]`
+          : `# ${prefix} ${nodes.length + 1}\n\nDouble click to edit.\n[[SessionDB]] or [[UserAuth]]`;
+
+      const newNode: CanvasNode = {
+        id: newId,
+        filePath: fileName,
+        title: fileName,
+        contentSnippet: defaultContent,
+        posX: Math.round(canvasX - 160),
+        posY: Math.round(canvasY - 110),
+        width: 320,
+        height: 220,
+        colorHex: '#10B981',
+        tags: lang === 'ko' ? ['아이디어'] : ['idea'],
+      };
+      setNodes((prev) => [...prev, newNode]);
+      setSelectedNodeId(newId);
+    },
+    [nodes.length, lang]
+  );
 
   // Auto-Layout
   const handleAutoLayout = useCallback(() => {
     const layouted = AutoLayoutEngine.applyAutoLayout(nodes, edges);
     setNodes([...layouted]);
-    // Smoothly re-center
     const fitTransform = CoordinateManager.calculateFitToViewTransform(
       layouted,
       window.innerWidth,
@@ -123,23 +167,17 @@ export function App() {
 
   // Zoom Controls
   const handleZoomIn = useCallback(() => {
-    setViewport((prev) => {
-      const newScale = Math.min(prev.scale * 1.2, 3.0);
-      return {
-        ...prev,
-        scale: newScale,
-      };
-    });
+    setViewport((prev) => ({
+      ...prev,
+      scale: Math.min(prev.scale * 1.2, 3.0),
+    }));
   }, []);
 
   const handleZoomOut = useCallback(() => {
-    setViewport((prev) => {
-      const newScale = Math.max(prev.scale * 0.8, 0.15);
-      return {
-        ...prev,
-        scale: newScale,
-      };
-    });
+    setViewport((prev) => ({
+      ...prev,
+      scale: Math.max(prev.scale * 0.8, 0.15),
+    }));
   }, []);
 
   const handleResetZoom = useCallback(() => {
@@ -160,7 +198,7 @@ export function App() {
 
   // Reset to Sample Architecture
   const handleResetToSample = useCallback(() => {
-    setNodes(INITIAL_SAMPLE_NODES);
+    setNodes(getInitialSampleNodes(lang));
     setVaultName('Architecture_Design.canvas');
     setSelectedNodeId(null);
     setViewport({
@@ -168,46 +206,49 @@ export function App() {
       y: 80,
       scale: 0.9,
     });
-  }, []);
+  }, [lang]);
 
   // Import files from disk (Drag & Drop or Manual)
-  const handleImportFiles = useCallback(async (files: FileList | File[], startPos?: { x: number; y: number }) => {
-    const newNodes: CanvasNode[] = [];
-    let currentX = startPos ? startPos.x : 100;
-    let currentY = startPos ? startPos.y : 100;
+  const handleImportFiles = useCallback(
+    async (files: FileList | File[], startPos?: { x: number; y: number }) => {
+      const newNodes: CanvasNode[] = [];
+      let currentX = startPos ? startPos.x : 100;
+      let currentY = startPos ? startPos.y : 100;
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (file.name.endsWith('.md') || file.name.endsWith('.markdown') || file.name.endsWith('.txt')) {
-        const text = await file.text();
-        const id = `file-${Date.now()}-${i}`;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.name.endsWith('.md') || file.name.endsWith('.markdown') || file.name.endsWith('.txt')) {
+          const text = await file.text();
+          const id = `file-${Date.now()}-${i}`;
 
-        newNodes.push({
-          id,
-          filePath: file.name,
-          title: file.name,
-          contentSnippet: text,
-          posX: currentX,
-          posY: currentY,
-          width: 320,
-          height: 240,
-          colorHex: '#3B82F6',
-          tags: ['imported'],
-        });
+          newNodes.push({
+            id,
+            filePath: file.name,
+            title: file.name,
+            contentSnippet: text,
+            posX: currentX,
+            posY: currentY,
+            width: 320,
+            height: 240,
+            colorHex: '#3B82F6',
+            tags: lang === 'ko' ? ['가져옴'] : ['imported'],
+          });
 
-        currentX += 360;
-        if (currentX > 1200) {
-          currentX = 100;
-          currentY += 280;
+          currentX += 360;
+          if (currentX > 1200) {
+            currentX = 100;
+            currentY += 280;
+          }
         }
       }
-    }
 
-    if (newNodes.length > 0) {
-      setNodes((prev) => [...prev, ...newNodes]);
-      setVaultName('Imported_Vault');
-    }
-  }, []);
+      if (newNodes.length > 0) {
+        setNodes((prev) => [...prev, ...newNodes]);
+        setVaultName('Imported_Vault');
+      }
+    },
+    [lang]
+  );
 
   // Handle Drag and Drop files onto canvas
   const handleDropFiles = useCallback(
@@ -243,7 +284,7 @@ export function App() {
               width: 320,
               height: 240,
               colorHex: '#10B981',
-              tags: ['local-folder'],
+              tags: lang === 'ko' ? ['로컬폴더'] : ['local-folder'],
             });
 
             startX += 360;
@@ -264,14 +305,18 @@ export function App() {
           setViewport(fitTransform);
         }
       } else {
-        alert('File System Access API is not supported in this browser. You can use Drag & Drop or Import Files!');
+        alert(
+          lang === 'ko'
+            ? '현재 브라우저에서 File System Access API를 지원하지 않습니다. 파일 가져오기 또는 드래그 앤 드롭을 이용해주세요!'
+            : 'File System Access API is not supported in this browser. You can use Drag & Drop or Import Files!'
+        );
       }
     } catch (err: unknown) {
       if ((err as Error).name !== 'AbortError') {
         console.error('Directory picker error:', err);
       }
     }
-  }, []);
+  }, [lang]);
 
   // Export as JSON Canvas format
   const handleExportJson = useCallback(() => {
@@ -309,7 +354,6 @@ export function App() {
   const handleExportPng = useCallback(() => {
     if (nodes.length === 0) return;
 
-    // Calculate canvas bounds
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -460,6 +504,8 @@ export function App() {
         vaultName={vaultName}
         zoomPercent={Math.round(viewport.scale * 100)}
         searchQuery={searchQuery}
+        lang={lang}
+        onLanguageChange={handleLanguageChange}
         onSearchChange={setSearchQuery}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
@@ -480,6 +526,7 @@ export function App() {
         viewport={viewport}
         selectedNodeId={selectedNodeId}
         searchQuery={searchQuery}
+        lang={lang}
         onViewportChange={setViewport}
         onSelectNode={setSelectedNodeId}
         onUpdateNode={handleUpdateNode}
@@ -509,6 +556,7 @@ export function App() {
         isOpen={isVaultModalOpen}
         onClose={() => setIsVaultModalOpen(false)}
         nodes={nodes}
+        lang={lang}
         onSelectNode={(id) => {
           setSelectedNodeId(id);
           const target = nodes.find((n) => n.id === id);

@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">캔버스리프</string>
+    <string name="open_vault">로컬 볼트 열기</string>
+    <string name="new_card">새 카드</string>
+    <string name="auto_layout">자동 정렬</string>
+    <string name="export_png">PNG 내보내기</string>
+    <string name="export_canvas">.canvas 내보내기</string>
+    <string name="local_first_sub">100% 로컬 우선 무한 공간 화이트보드</string>
+    <string name="search_placeholder">카드 검색...</string>
+</resources>
