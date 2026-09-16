@@ -1,0 +1,52 @@
+{
+  "nodes": [
+    {
+      "id": "node-userauth",
+      "type": "file",
+      "file": "UserAuth.md",
+      "x": 80,
+      "y": 100,
+      "width": 320,
+      "height": 240,
+      "color": "1"
+    },
+    {
+      "id": "node-sessiondb",
+      "type": "file",
+      "file": "SessionDB.md",
+      "x": 560,
+      "y": 220,
+      "width": 320,
+      "height": 240,
+      "color": "3"
+    },
+    {
+      "id": "node-clientapp",
+      "type": "file",
+      "file": "ClientApp.md",
+      "x": 80,
+      "y": 420,
+      "width": 320,
+      "height": 240,
+      "color": "4"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-auth-session",
+      "fromNode": "node-userauth",
+      "fromSide": "right",
+      "toNode": "node-sessiondb",
+      "toSide": "left",
+      "label": "uses"
+    },
+    {
+      "id": "edge-client-session",
+      "fromNode": "node-clientapp",
+      "fromSide": "right",
+      "toNode": "node-sessiondb",
+      "toSide": "left",
+      "label": "sync"
+    }
+  ]
+}
