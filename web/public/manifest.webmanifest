@@ -1,0 +1,16 @@
+{
+  "name": "CanvasLeaf - 로컬 우선 마크다운 화이트보드",
+  "short_name": "CanvasLeaf",
+  "description": "마크다운 노트를 무한 2D 캔버스에 배치하고 WikiLink를 자동으로 연결해 보여 주는 로컬 우선 화이트보드",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0F1115",
+  "theme_color": "#12141A",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
